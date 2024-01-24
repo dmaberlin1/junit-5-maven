@@ -27,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.BDDMockito;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -73,7 +74,7 @@ class UserServiceTest {
 
 
     @Captor
-    private ArgumentCaptor<Long>argumentCaptor;
+    private ArgumentCaptor<Long> argumentCaptor;
     @Mock(lenient = true)
     private UserDao userDao;
     @InjectMocks
@@ -99,17 +100,22 @@ class UserServiceTest {
     }
 
     @Test
-    void throwExceptionIfDatabaseIsNotAvailable(){
+    void throwExceptionIfDatabaseIsNotAvailable() {
         doThrow(RuntimeException.class).when(userDao).delete(IVAN.getId());
-        assertThrows(RuntimeException.class,()->userService.delete(IVAN.getId()));
+        assertThrows(RuntimeException.class, () -> userService.delete(IVAN.getId()));
     }
 
     @Test
-    void shouldDeleteExistedUser(){
+    void shouldDeleteExistedUser() {
         userService.add(IVAN);
         doReturn(true).when(userDao).delete(IVAN.getId());
-//        Mockito.doReturn(true).when(userDao).delete(Mockito.anyLong());
-//        Mockito.when(userDao.delete(IVAN.getId())).thenReturn(true).thenReturn(false);
+
+
+        BDDMockito.given(userDao.delete(IVAN.getId())).willReturn(true);
+
+
+        BDDMockito.willReturn(true).given(userDao).delete(IVAN.getId());
+
         boolean deleteResult = userService.delete(IVAN.getId());
         System.out.println(deleteResult);
         System.out.println(userService.delete(IVAN.getId()));
@@ -126,7 +132,7 @@ class UserServiceTest {
     @DisplayName("users will be empty if no user added")
     void usersEmptyIfNoUserAdded() throws IOException {
 
-        if(true){
+        if (true) {
             throw new IOException();
         }
         System.out.println("Test 1 :" + this);
@@ -139,27 +145,48 @@ class UserServiceTest {
 
     @Test
     void usersSizeIfUserAdded() {
-        System.out.println("Test 2 :" + this);
-
+        //given  -дано
+        // инициализация значений
 
         userService.add(IVAN);
         userService.add(TOM);
 
+        //when -вызов
         List<User> users = userService.getAll();
+        //then -проверка того что вернулось с предидущего шага
+        //проверка возвращаемого значения из предидущего шага
+
+        System.out.println("Test 2 :" + this);
+
         assertThat(users).hasSize(2);
         assertEquals(2, users.size());
     }
 
 
+    //given
+    //when
+    //then
+    //when
+    //then
+    //when
+    //then
+    //when
+    //then
+    //when
+    //then
+
     @Test
     void usersConvertedToMapById() {
+        //given
         userService.add(IVAN, TOM);
+        //when
         Map<Long, User> users = userService.getAllConvertedById();
+
+        //then
         assertAll(() -> {
             assertThat(users).containsKeys(IVAN.getId(), TOM.getId());
             assertThat(users).containsValues(IVAN, TOM);
         });
-
 
     }
 
